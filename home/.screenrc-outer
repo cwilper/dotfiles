@@ -1,0 +1,14 @@
+# inherit most settings from .screenrc
+source ~/.screenrc
+
+# but don't display status
+hardstatus ignore
+
+# and only display caption on splits
+caption splitonly
+
+# and use C-E as outer escape sequence
+escape ^Ee
+
+# and start an inner screen session
+screen -t default 0 screen -q -S inner

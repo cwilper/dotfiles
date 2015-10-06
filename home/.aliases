@@ -1,0 +1,149 @@
+# dsdev
+
+DSDEVBASE=$HOME/Work/dspace
+
+# set the working dspace instance and cd to it
+dswork() {
+  if [ "$1" = "" ]; then
+    export DSNAME=
+    export DS_LOCAL_SETTINGS=undefined
+  fi
+  _DIR="$DSDEVBASE/$1"
+  if [ -d "$_DIR" ]; then
+    export DSNAME="$1"
+    export DSPACE_LOCAL_SETTINGS="$_DIR/local-settings.cfg"
+  else
+    echo "No such directory: $_DIR"
+  fi
+}
+
+_dswork_completion() {
+  if [ $COMP_CWORD -lt 2 ]; then
+    local cur=${COMP_WORDS[$COMP_CWORD]}
+    local choices=$(ls "$DSDEVBASE")
+    COMPREPLY=( $(compgen -W "$choices" -- $cur) )
+  fi
+}
+complete -F _dswork_completion dswork
+complete -F _dswork_completion dscd
+
+# cd to the working dspace instance's src dir
+dscd() {
+  if [ -n "$1" ]; then
+    dswork $1
+  fi
+  if [ -n "$DSNAME" ]; then
+    _DIR="$DSDEVBASE/$DSNAME"
+    if [ -d "$_DIR" ]; then
+      cd "$_DIR"
+      # print warnings if local-settings.cfg or apache-tomcat/ don't exist
+      _FILE="$_DIR/local-settings.cfg"
+      if [ ! -f "$_FILE" ]; then
+        echo "Warning: No local settings for $DSNAME: $_FILE"
+      fi
+      _DIR2="$_DIR/apache-tomcat"
+      if [ ! -d "$_DIR2" ]; then
+        echo "Warning: No Tomcat directory for $DSNAME: $_DIR2"
+      fi
+      # cd to src/ or print warning if it doesn't exist
+      _DIR2="$_DIR/src"
+      if [ -d "$_DIR2" ]; then
+        cd "$_DIR2"
+      else
+        echo "Warning: No source directory for $DSNAME: $_DIR2"
+      fi
+    else
+      echo "No such directory: $_DIR"
+    fi
+  else
+    echo "No working DSpace instance"
+  fi
+}
+
+dsfresh() {
+  if [ -n "$DSNAME" ]; then
+    echo "Enter CONFIRM to confirm. Anything else to cancel."
+    read confirm
+    if [ "$confirm" == "CONFIRM" ]; then
+      echo "Confirmed."
+      dscd
+      rm -rf ../dspace > /dev/null 2>&1
+      dropdb "dspace-$DSNAME" > /dev/null 2>&1
+      createdb "dspace-$DSNAME" > /dev/null 2>&1
+      echo "$DSNAME is fresh."
+    else
+      echo "Canceled."
+    fi
+  else
+    die "No working DSpace instance"
+  fi
+}
+
+dskill() {
+  PID=`ps -ef | grep tomcat | grep java | awk '!/grep/ {print $2}'`
+  if [[ -n "$PID" ]]; then
+    echo "DSpace is running"
+    for signal in "TERM" "INT" "HUP" "KILL"; do
+      kill -$signal $PID
+      RETVAL=$?
+      [ $RETVAL -eq 0 ] && break
+      sleep 1
+    done
+    echo "Killed process $PID"
+  fi
+  echo "DSpace is stopped"
+}
+
+dsstat() {
+  PID=`ps -ef | grep tomcat | grep java | awk '!/grep/ {print $2}'`
+  if [[ -n "$PID" ]]; then
+    echo "DSpace is running"
+  else
+    echo "DSpace is stopped"
+  fi
+}
+
+dsdb() {
+  psql -d dspace-$DSNAME
+}
+
+dslog() {
+  tail -f $DSDEVBASE/$DSNAME/dspace/log/* -f $DSDEVBASE/$DSNAME/apache-tomcat/logs/*
+}
+
+dsstart() {
+  $HOME/scripts/startup.sh || return
+  echo "Waiting 25 seconds for logfiles to initialize"
+  sleep 25
+  dslog
+}
+
+dsdebug() {
+  export JAVA_OPTS="-Xmx8192m -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5010"
+  $HOME/scripts/ds.sh "$@"
+}
+
+alias dsclean="~/scripts/clean-build.sh"
+alias dsbuild="~/scripts/build.sh"
+alias dsdeploy="~/scripts/deploy.sh"
+alias dsenv="~/scripts/env.sh --dump"
+alias dsupdate="~/scripts/update.sh"
+alias dsstartup="~/scripts/startup.sh"
+alias dsshutdown="~/scripts/shutdown.sh"
+alias dsstop="~/scripts/shutdown.sh"
+alias ds="~/scripts/ds.sh"
+alias dsbounce="dskill && dsupdate && dsstart"
+
+alias g="git"
+alias ga="git add"
+alias gc="git commit"
+alias gcm="git commit -m"
+alias gd="git diff"
+alias gds="git diff --stat"
+alias gdt="git difftool"
+alias gl="git l"
+alias gll="git ll"
+alias gs="git status"
+alias gam="git add . && git commit -m"
+
+alias la="ls -la"

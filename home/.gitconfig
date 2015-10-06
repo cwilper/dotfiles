@@ -1,0 +1,46 @@
+[core]
+    #safecrlf = true
+    autocrlf = input
+    ignorecase = true
+    editor = vi
+    #pager = less -r
+[blame]
+    date = short
+[user]
+    name = Chris Wilper
+    email = chris@atmire.com
+[alias]
+    l = log --color --graph --pretty=format:'%C(red bold)%h%Creset%C(yellow bold)%d%Creset %C(green bold)(%cr)%Creset %C(white)%s%Creset %C(magenta bold)<%an>%Creset' --abbrev-commit --branches
+    ll = log --color --graph --pretty=format:'%C(red bold)%h%Creset%C(yellow bold)%d%Creset %C(green bold)(%cD)%Creset %C(white)%s%Creset %C(magenta bold)<%an>%Creset' --abbrev-commit --branches --stat
+    w = shortlog -se
+    ww = shortlog --format='* %C(red bold)%h%Creset %C(green bold)(%cr)%Creset %s'
+    diffss = diff --stat
+    diffs = diff --name-status
+[color]
+    branch = auto
+    diff = auto
+    status = auto
+[color "branch"]
+    current = yellow bold
+    local = white bold
+    remote = white
+[color "diff"]
+    meta = yellow bold
+    frag = cyan bold
+    old = red bold
+    new = green bold
+[color "status"]
+    added = green bold
+    changed = yellow bold
+    untracked = red bold
+[branch]
+    autosetuprebase = always
+    autosetupmerge = always
+[push]
+    default = current
+[credential]
+    helper = osxkeychain
+[diff]
+    tool = vimdiff
+[merge]
+    tool = vimdiff

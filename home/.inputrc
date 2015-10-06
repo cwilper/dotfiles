@@ -1,0 +1,4 @@
+# Add vim support for anything, such as bash, that uses GNU Readline
+set editing-mode vi
+
+set show-all-if-ambiguous
