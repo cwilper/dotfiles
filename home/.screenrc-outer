@@ -7,8 +7,8 @@ hardstatus ignore
 # and only display caption on splits
 caption splitonly
 
-# and use C-E as outer escape sequence
-escape ^Ee
+# and use C-\ as outer escape sequence
+escape ^\\
 
 # and start an inner screen session
 screen -t default 0 screen -q -S inner

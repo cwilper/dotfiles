@@ -19,8 +19,8 @@ hardstatus string '%{= kw}%-Lw%{= Kw}%50>%n%f* %t%{= kW}%+Lw%< %{= kG}%-=%D %d %
 # show a border above status and between splits
 caption always '%{= Kk}'
 
-# don't clear the screen after exiting less, vi, etc
-altscreen off
+# clear the screen after exiting less, vi, etc
+altscreen on
 
 # use a newer-than-default version of bash
 shell /usr/local/bin/bash
